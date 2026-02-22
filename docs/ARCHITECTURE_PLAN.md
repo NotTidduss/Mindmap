@@ -1,14 +1,14 @@
 # NT_Mindmap Multi-File Architecture Plan
 
 ## 1) Data Layer
-- **`ProjectEntry.cs`**
+- **`scripts/core/ProjectEntry.cs`**
   - Serializable node record:
     - `Id`
     - `Title`
     - `Note`
     - `Position` (stored as `PositionX` and `PositionY` for JSON)
     - `ConnectionIds` (`List<int>`)
-- **`MindMapData.cs`**
+- **`scripts/core/MindMapData.cs`**
   - Owns full in-memory map state:
     - `Entries` collection
     - `NextId` counter
@@ -20,7 +20,7 @@
     - `EnsureNextId()`
 
 ## 2) UI + Interaction Layer
-- **`MindMapManager.cs`** (attach to `GraphEdit`)
+- **`scripts/core/MindMapManager.cs`** (attach to `GraphEdit`)
   - Creates visual nodes (`GraphNode`) for each `ProjectEntry`.
   - `AddEntry(Vector2 position)` creates model + UI node in one call.
   - Each `GraphNode` contains:
@@ -51,7 +51,7 @@
   - Calls `ProjectSettings.Save()`.
 
 ## 6) Expected Scene Wiring
-- Root has a `GraphEdit` with script `MindMapManager.cs`.
+- Main scene is `scenes/main.tscn` and its `GraphEdit` uses `scripts/core/MindMapManager.cs`.
 - Side panel has a `VBoxContainer` assigned to `TodoListContainerPath` export on `MindMapManager`.
 - Optional UI controls (buttons) can call:
   - `AddEntry(...)`

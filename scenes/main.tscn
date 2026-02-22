@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cag78asatelab"]
 
-[ext_resource type="Script" path="res://Main.cs" id="1_main"]
-[ext_resource type="Script" path="res://MindMapManager.cs" id="2_manager"]
+[ext_resource type="Script" path="res://scripts/ui/Main.cs" id="1_main"]
+[ext_resource type="Script" path="res://scripts/core/MindMapManager.cs" id="2_manager"]
 
 [node name="Main" type="Control"]
 layout_mode = 3

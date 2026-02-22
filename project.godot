@@ -14,7 +14,7 @@ config/name="NT_Mindmap"
 run/main_scene="uid://cag78asatelab"
 config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 run/low_processor_mode=true
-config/icon="res://icon.svg"
+config/icon="res://assets/icons/icon.svg"
 
 [dotnet]
 
