@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=3 uid="uid://cag78asatelab"]
+
+[ext_resource type="Script" path="res://Main.cs" id="1_main"]
+[ext_resource type="Script" path="res://MindMapManager.cs" id="2_manager"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MindMapGraph" type="GraphEdit" parent="HSplitContainer"]
+custom_minimum_size = Vector2(700, 0)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+right_disconnects = true
+script = ExtResource("2_manager")
+TodoListContainerPath = NodePath("../Sidebar/TodoList")
+
+[node name="Sidebar" type="VBoxContainer" parent="HSplitContainer"]
+custom_minimum_size = Vector2(280, 0)
+size_flags_horizontal = 1
+size_flags_vertical = 3
+
+[node name="AddEntryButton" type="Button" parent="HSplitContainer/Sidebar"]
+layout_mode = 2
+text = "Add Entry (Ctrl+N)"
+
+[node name="SaveButton" type="Button" parent="HSplitContainer/Sidebar"]
+layout_mode = 2
+text = "Save Project (Ctrl+S)"
+
+[node name="LoadButton" type="Button" parent="HSplitContainer/Sidebar"]
+layout_mode = 2
+text = "Load Project (Ctrl+O)"
+
+[node name="TodoHeader" type="Label" parent="HSplitContainer/Sidebar"]
+layout_mode = 2
+text = "To-Do Items"
+
+[node name="TodoList" type="VBoxContainer" parent="HSplitContainer/Sidebar"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ProjectFileDialog" type="FileDialog" parent="."]
+title = "Select Mind Map Project File"
+size = Vector2i(900, 620)
