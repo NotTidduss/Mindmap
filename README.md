@@ -1,5 +1,6 @@
 # Mindmap
-A small tool for connecting notes.
+A small tool developed in the Godot engine, used for connecting notes.
+
 Prefix a line with "Todo:" to add it to the side.
 
 ## Project Structure
