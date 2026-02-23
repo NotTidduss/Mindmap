@@ -8,6 +8,9 @@ public partial class MindMapManager : GraphEdit
     [Export] public NodePath TodoListContainerPath;
 
     private const string EntryNodePrefix = "Entry_";
+    private const float NoteBaseHeight = 120f;
+    private const float NoteMaxHeight = NoteBaseHeight * 2f;
+    private const float NoteHeightPadding = 24f;
 
     private MindMapData _mindMapData = new();
 
@@ -172,6 +175,8 @@ public partial class MindMapManager : GraphEdit
             CreateEntryNode(entry);
         }
 
+        CallDeferred(nameof(RefreshAllEntryNoteHeights));
+
         RestoreVisualConnectionsFromData();
         RefreshTodoList();
         return true;
@@ -180,9 +185,6 @@ public partial class MindMapManager : GraphEdit
     private void EnableLowProcessorMode()
     {
         OS.LowProcessorUsageMode = true;
-
-        ProjectSettings.SetSetting("application/run/low_processor_mode", true);
-        ProjectSettings.Save();
     }
 
     private void PullVisualStateToData()
@@ -336,8 +338,11 @@ public partial class MindMapManager : GraphEdit
         {
             Name = "Note",
             Text = entry.Note,
-            CustomMinimumSize = new Vector2(280f, 120f)
+            CustomMinimumSize = new Vector2(280f, NoteBaseHeight),
+            WrapMode = TextEdit.LineWrappingMode.Boundary
         };
+
+        UpdateNoteEditorHeight(noteEdit, node);
 
         titleEdit.TextChanged += (string newText) =>
         {
@@ -349,7 +354,13 @@ public partial class MindMapManager : GraphEdit
         noteEdit.TextChanged += () =>
         {
             entry.Note = noteEdit.Text;
+            UpdateNoteEditorHeight(noteEdit, node);
             RefreshTodoList();
+        };
+
+        noteEdit.Resized += () =>
+        {
+            UpdateNoteEditorHeight(noteEdit, node);
         };
 
         content.AddChild(titleEdit);
@@ -360,6 +371,46 @@ public partial class MindMapManager : GraphEdit
 
         AddChild(node);
         return node;
+    }
+
+    private static void UpdateNoteEditorHeight(TextEdit noteEdit, GraphNode entryNode)
+    {
+        var logicalLineCount = Math.Max(1, noteEdit.GetLineCount());
+        var visualLineCount = 0;
+
+        for (var line = 0; line < logicalLineCount; line++)
+        {
+            visualLineCount += 1 + noteEdit.GetLineWrapCount(line);
+        }
+
+        var contentHeight = visualLineCount * noteEdit.GetLineHeight() + NoteHeightPadding;
+        var targetHeight = Mathf.Clamp(contentHeight, NoteBaseHeight, NoteMaxHeight);
+
+        noteEdit.CustomMinimumSize = new Vector2(noteEdit.CustomMinimumSize.X, targetHeight);
+
+        var minimumSize = entryNode.GetCombinedMinimumSize();
+        var targetNodeWidth = Mathf.Max(entryNode.Size.X, minimumSize.X);
+        entryNode.Size = new Vector2(targetNodeWidth, minimumSize.Y);
+    }
+
+    private void RefreshAllEntryNoteHeights()
+    {
+        foreach (var entry in _mindMapData.Entries)
+        {
+            var node = GetNodeOrNull<GraphNode>(GetEntryNodeName(entry.Id));
+            if (node is null)
+            {
+                continue;
+            }
+
+            var noteEdit = node.GetNodeOrNull<TextEdit>("Content/Note");
+            if (noteEdit is null)
+            {
+                continue;
+            }
+
+            UpdateNoteEditorHeight(noteEdit, node);
+        }
     }
 
     private void ClearAllEntryNodes()

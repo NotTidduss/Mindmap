@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cag78asatelab"]
 
-[ext_resource type="Script" path="res://scripts/ui/Main.cs" id="1_main"]
-[ext_resource type="Script" path="res://scripts/core/MindMapManager.cs" id="2_manager"]
+[ext_resource type="Script" uid="uid://dctrdyk53uix5" path="res://scripts/ui/Main.cs" id="1_main"]
+[ext_resource type="Script" uid="uid://i8xui43is116" path="res://scripts/core/MindMapManager.cs" id="2_manager"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -22,34 +22,45 @@ grow_vertical = 2
 
 [node name="MindMapGraph" type="GraphEdit" parent="HSplitContainer"]
 custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+scroll_offset = Vector2(-280, 0)
 right_disconnects = true
 script = ExtResource("2_manager")
-TodoListContainerPath = NodePath("../Sidebar/TodoList")
+TodoListContainerPath = NodePath("../Margin/Sidebar/TodoList")
 
-[node name="Sidebar" type="VBoxContainer" parent="HSplitContainer"]
+[node name="Margin" type="MarginContainer" parent="HSplitContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Sidebar" type="VBoxContainer" parent="HSplitContainer/Margin"]
 custom_minimum_size = Vector2(280, 0)
-size_flags_horizontal = 1
+layout_mode = 2
 size_flags_vertical = 3
 
-[node name="AddEntryButton" type="Button" parent="HSplitContainer/Sidebar"]
+[node name="AddEntryButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
 text = "Add Entry (Ctrl+N)"
 
-[node name="SaveButton" type="Button" parent="HSplitContainer/Sidebar"]
+[node name="SaveButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
 text = "Save Project (Ctrl+S)"
 
-[node name="LoadButton" type="Button" parent="HSplitContainer/Sidebar"]
+[node name="LoadButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
 text = "Load Project (Ctrl+O)"
 
-[node name="TodoHeader" type="Label" parent="HSplitContainer/Sidebar"]
+[node name="HSeparator" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
-text = "To-Do Items"
 
-[node name="TodoList" type="VBoxContainer" parent="HSplitContainer/Sidebar"]
+[node name="TodoHeader" type="Label" parent="HSplitContainer/Margin/Sidebar"]
+layout_mode = 2
+text = "ToDo:"
+
+[node name="TodoList" type="VBoxContainer" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
 size_flags_vertical = 3
 

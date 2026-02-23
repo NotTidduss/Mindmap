@@ -3,6 +3,7 @@ using Godot;
 public partial class Main : Control
 {
     private const string DefaultSavePath = "user://mindmap.json";
+    private const float MinGraphZoom = 0.0001f;
 
     private enum FileAction
     {
@@ -12,6 +13,7 @@ public partial class Main : Control
     }
 
     private MindMapManager _mindMapManager;
+    private Control _sidebar;
     private FileDialog _projectFileDialog;
     private int _spawnIndex;
     private string _lastProjectPath = DefaultSavePath;
@@ -20,11 +22,12 @@ public partial class Main : Control
     public override void _Ready()
     {
         _mindMapManager = GetNode<MindMapManager>("HSplitContainer/MindMapGraph");
+        _sidebar = GetNode<Control>("HSplitContainer/Margin/Sidebar");
         _projectFileDialog = GetNode<FileDialog>("ProjectFileDialog");
 
-        var addButton = GetNode<Button>("HSplitContainer/Sidebar/AddEntryButton");
-        var saveButton = GetNode<Button>("HSplitContainer/Sidebar/SaveButton");
-        var loadButton = GetNode<Button>("HSplitContainer/Sidebar/LoadButton");
+        var addButton = GetNode<Button>("HSplitContainer/Margin/Sidebar/AddEntryButton");
+        var saveButton = GetNode<Button>("HSplitContainer/Margin/Sidebar/SaveButton");
+        var loadButton = GetNode<Button>("HSplitContainer/Margin/Sidebar/LoadButton");
 
         addButton.Pressed += OnAddEntryPressed;
         saveButton.Pressed += OnSavePressed;
@@ -67,13 +70,42 @@ public partial class Main : Control
 
     private void OnAddEntryPressed()
     {
-        var position = new Vector2(120 + 40 * _spawnIndex, 120 + 30 * _spawnIndex);
+        var position = GetEntrySpawnPosition();
         _mindMapManager.AddEntry(position);
         _spawnIndex++;
     }
 
+    private Vector2 GetEntrySpawnPosition()
+    {
+        var mouseGlobalPosition = GetGlobalMousePosition();
+        var mouseOverSidebar = _sidebar.GetGlobalRect().HasPoint(mouseGlobalPosition);
+        var mouseOverMindMap = _mindMapManager.GetGlobalRect().HasPoint(mouseGlobalPosition);
+
+        if (mouseOverMindMap && !mouseOverSidebar)
+        {
+            return ConvertLocalGraphViewToGraphPosition(_mindMapManager.GetLocalMousePosition());
+        }
+
+        var visibleCenter = _mindMapManager.Size * 0.5f;
+        var visibleCenterGraphPosition = ConvertLocalGraphViewToGraphPosition(visibleCenter);
+        var fallbackOffsetStep = _spawnIndex % 5;
+        var fallbackOffset = new Vector2(40 * fallbackOffsetStep, 30 * fallbackOffsetStep);
+        return visibleCenterGraphPosition + fallbackOffset;
+    }
+
+    private Vector2 ConvertLocalGraphViewToGraphPosition(Vector2 localGraphViewPosition)
+    {
+        var zoom = Mathf.Max(_mindMapManager.Zoom, MinGraphZoom);
+        return _mindMapManager.ScrollOffset + localGraphViewPosition / zoom;
+    }
+
     private void OnSavePressed()
     {
+        if (TryOverwriteExistingSave())
+        {
+            return;
+        }
+
         OpenPathPicker(FileAction.Save);
     }
 
@@ -90,6 +122,21 @@ public partial class Main : Control
             : FileDialog.FileModeEnum.OpenFile;
         _projectFileDialog.CurrentPath = _lastProjectPath;
         _projectFileDialog.PopupCenteredRatio(0.7f);
+    }
+
+    private bool TryOverwriteExistingSave()
+    {
+        if (string.IsNullOrWhiteSpace(_lastProjectPath))
+        {
+            return false;
+        }
+
+        if (!FileAccess.FileExists(_lastProjectPath))
+        {
+            return false;
+        }
+
+        return _mindMapManager.SaveProject(_lastProjectPath);
     }
 
     private void OnProjectFileSelected(string path)
