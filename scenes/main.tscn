@@ -53,7 +53,22 @@ text = "Save Project (Ctrl+S)"
 layout_mode = 2
 text = "Load Project (Ctrl+O)"
 
-[node name="HSeparator" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
+[node name="SearchSeparatorTop" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
+layout_mode = 2
+
+[node name="SearchRow" type="HBoxContainer" parent="HSplitContainer/Margin/Sidebar"]
+layout_mode = 2
+
+[node name="SearchInput" type="LineEdit" parent="HSplitContainer/Margin/Sidebar/SearchRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search title..."
+
+[node name="SearchCount" type="Label" parent="HSplitContainer/Margin/Sidebar/SearchRow"]
+layout_mode = 2
+text = "0 matches"
+
+[node name="SearchSeparatorBottom" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
 layout_mode = 2
 
 [node name="TodoHeader" type="Label" parent="HSplitContainer/Margin/Sidebar"]

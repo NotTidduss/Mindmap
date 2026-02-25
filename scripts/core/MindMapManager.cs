@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Godot;
 
@@ -11,8 +12,14 @@ public partial class MindMapManager : GraphEdit
     private const float NoteBaseHeight = 120f;
     private const float NoteMaxHeight = NoteBaseHeight * 2f;
     private const float NoteHeightPadding = 24f;
+    private const float MinGraphZoom = 0.0001f;
+
+    private static readonly Color DefaultEntryModulate = Colors.White;
+    private static readonly Color SearchMatchEntryModulate = Colors.LightGoldenrod;
 
     private MindMapData _mindMapData = new();
+    private readonly List<int> _searchMatchIds = new();
+    private int _currentSearchMatchIndex = -1;
 
     private VBoxContainer _todoListContainer;
 
@@ -73,6 +80,55 @@ public partial class MindMapManager : GraphEdit
         CreateEntryNode(entry);
         RefreshTodoList();
         return entry;
+    }
+
+    public int ApplyTitleSearch(string query)
+    {
+        PullVisualStateToData();
+
+        _searchMatchIds.Clear();
+        _currentSearchMatchIndex = -1;
+
+        var normalizedQuery = query?.Trim() ?? string.Empty;
+        if (string.IsNullOrEmpty(normalizedQuery))
+        {
+            ClearSearchHighlighting();
+            return 0;
+        }
+
+        var scoredMatches = new List<(int Id, int Score)>();
+        foreach (var entry in _mindMapData.Entries)
+        {
+            var score = TitleFuzzyMatcher.GetScore(normalizedQuery, entry.Title);
+            if (score < 0)
+            {
+                continue;
+            }
+
+            scoredMatches.Add((entry.Id, score));
+        }
+
+        foreach (var match in scoredMatches.OrderByDescending(match => match.Score).ThenBy(match => match.Id))
+        {
+            _searchMatchIds.Add(match.Id);
+        }
+
+        ApplySearchHighlighting();
+
+        if (_searchMatchIds.Count > 0)
+        {
+            _currentSearchMatchIndex = 0;
+            FocusEntryById(_searchMatchIds[_currentSearchMatchIndex]);
+        }
+
+        return _searchMatchIds.Count;
+    }
+
+    public void ResetTitleSearch()
+    {
+        _searchMatchIds.Clear();
+        _currentSearchMatchIndex = -1;
+        ClearSearchHighlighting();
     }
 
     public void RefreshTodoList()
@@ -178,6 +234,7 @@ public partial class MindMapManager : GraphEdit
         CallDeferred(nameof(RefreshAllEntryNoteHeights));
 
         RestoreVisualConnectionsFromData();
+        ResetTitleSearch();
         RefreshTodoList();
         return true;
     }
@@ -411,6 +468,52 @@ public partial class MindMapManager : GraphEdit
 
             UpdateNoteEditorHeight(noteEdit, node);
         }
+    }
+
+    private void ApplySearchHighlighting()
+    {
+        var highlightedIds = new HashSet<int>(_searchMatchIds);
+
+        foreach (var entry in _mindMapData.Entries)
+        {
+            var node = GetNodeOrNull<GraphNode>(GetEntryNodeName(entry.Id));
+            if (node is null)
+            {
+                continue;
+            }
+
+            node.Modulate = highlightedIds.Contains(entry.Id)
+                ? SearchMatchEntryModulate
+                : DefaultEntryModulate;
+        }
+    }
+
+    private void ClearSearchHighlighting()
+    {
+        foreach (var entry in _mindMapData.Entries)
+        {
+            var node = GetNodeOrNull<GraphNode>(GetEntryNodeName(entry.Id));
+            if (node is null)
+            {
+                continue;
+            }
+
+            node.Modulate = DefaultEntryModulate;
+        }
+    }
+
+    private void FocusEntryById(int entryId)
+    {
+        var node = GetNodeOrNull<GraphNode>(GetEntryNodeName(entryId));
+        if (node is null)
+        {
+            return;
+        }
+
+        var zoom = Mathf.Max(Zoom, MinGraphZoom);
+        var viewportCenterInGraph = ScrollOffset + Size * 0.5f / zoom;
+        var nodeCenter = node.PositionOffset + node.Size * 0.5f;
+        ScrollOffset += nodeCenter - viewportCenterInGraph;
     }
 
     private void ClearAllEntryNodes()

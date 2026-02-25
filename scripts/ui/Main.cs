@@ -15,6 +15,8 @@ public partial class Main : Control
     private MindMapManager _mindMapManager;
     private Control _sidebar;
     private FileDialog _projectFileDialog;
+    private LineEdit _searchInput;
+    private Label _searchCountLabel;
     private int _spawnIndex;
     private string _lastProjectPath = DefaultSavePath;
     private FileAction _pendingFileAction = FileAction.None;
@@ -24,6 +26,8 @@ public partial class Main : Control
         _mindMapManager = GetNode<MindMapManager>("HSplitContainer/MindMapGraph");
         _sidebar = GetNode<Control>("HSplitContainer/Margin/Sidebar");
         _projectFileDialog = GetNode<FileDialog>("ProjectFileDialog");
+        _searchInput = GetNode<LineEdit>("HSplitContainer/Margin/Sidebar/SearchRow/SearchInput");
+        _searchCountLabel = GetNode<Label>("HSplitContainer/Margin/Sidebar/SearchRow/SearchCount");
 
         var addButton = GetNode<Button>("HSplitContainer/Margin/Sidebar/AddEntryButton");
         var saveButton = GetNode<Button>("HSplitContainer/Margin/Sidebar/SaveButton");
@@ -32,17 +36,27 @@ public partial class Main : Control
         addButton.Pressed += OnAddEntryPressed;
         saveButton.Pressed += OnSavePressed;
         loadButton.Pressed += OnLoadPressed;
+        _searchInput.TextChanged += OnSearchInputChanged;
 
         _projectFileDialog.Access = FileDialog.AccessEnum.Userdata;
         _projectFileDialog.AddFilter("*.json ; Mind Map Project");
         _projectFileDialog.FileSelected += OnProjectFileSelected;
         _projectFileDialog.Canceled += OnProjectFileDialogCanceled;
+
+        UpdateSearchCount(0);
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
         {
+            return;
+        }
+
+        if (keyEvent.Keycode == Key.Escape)
+        {
+            ResetSearch();
+            GetViewport().SetInputAsHandled();
             return;
         }
 
@@ -159,5 +173,28 @@ public partial class Main : Control
     private void OnProjectFileDialogCanceled()
     {
         _pendingFileAction = FileAction.None;
+    }
+
+    private void OnSearchInputChanged(string query)
+    {
+        var matchCount = _mindMapManager.ApplyTitleSearch(query);
+        UpdateSearchCount(matchCount);
+    }
+
+    private void UpdateSearchCount(int count)
+    {
+        _searchCountLabel.Text = count == 1 ? "1 match" : $"{count} matches";
+    }
+
+    private void ResetSearch()
+    {
+        if (!string.IsNullOrEmpty(_searchInput.Text))
+        {
+            _searchInput.Text = string.Empty;
+            return;
+        }
+
+        _mindMapManager.ResetTitleSearch();
+        UpdateSearchCount(0);
     }
 }
