@@ -68,7 +68,7 @@ public partial class Main : Control
         switch (keyEvent.Keycode)
         {
             case Key.N:
-                OnAddEntryPressed();
+                OnAddEntryPressedAtCursor();
                 GetViewport().SetInputAsHandled();
                 break;
             case Key.S:
@@ -85,6 +85,13 @@ public partial class Main : Control
     private void OnAddEntryPressed()
     {
         var position = GetEntrySpawnPosition();
+        _mindMapManager.AddEntry(position);
+        _spawnIndex++;
+    }
+
+    private void OnAddEntryPressedAtCursor()
+    {
+        var position = GetEntrySpawnPositionFromGlobalMouse();
         _mindMapManager.AddEntry(position);
         _spawnIndex++;
     }
@@ -111,6 +118,13 @@ public partial class Main : Control
     {
         var zoom = Mathf.Max(_mindMapManager.Zoom, MinGraphZoom);
         return _mindMapManager.ScrollOffset + localGraphViewPosition / zoom;
+    }
+
+    private Vector2 GetEntrySpawnPositionFromGlobalMouse()
+    {
+        var mouseGlobalPosition = GetGlobalMousePosition();
+        var graphLocalMousePosition = mouseGlobalPosition - _mindMapManager.GlobalPosition;
+        return ConvertLocalGraphViewToGraphPosition(graphLocalMousePosition);
     }
 
     private void OnSavePressed()
@@ -191,7 +205,6 @@ public partial class Main : Control
         if (!string.IsNullOrEmpty(_searchInput.Text))
         {
             _searchInput.Text = string.Empty;
-            return;
         }
 
         _mindMapManager.ResetTitleSearch();

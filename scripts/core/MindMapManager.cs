@@ -12,14 +12,12 @@ public partial class MindMapManager : GraphEdit
     private const float NoteBaseHeight = 120f;
     private const float NoteMaxHeight = NoteBaseHeight * 2f;
     private const float NoteHeightPadding = 24f;
-    private const float MinGraphZoom = 0.0001f;
 
     private static readonly Color DefaultEntryModulate = Colors.White;
     private static readonly Color SearchMatchEntryModulate = Colors.LightGoldenrod;
 
     private MindMapData _mindMapData = new();
     private readonly List<int> _searchMatchIds = new();
-    private int _currentSearchMatchIndex = -1;
 
     private VBoxContainer _todoListContainer;
 
@@ -87,7 +85,6 @@ public partial class MindMapManager : GraphEdit
         PullVisualStateToData();
 
         _searchMatchIds.Clear();
-        _currentSearchMatchIndex = -1;
 
         var normalizedQuery = query?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(normalizedQuery))
@@ -115,19 +112,12 @@ public partial class MindMapManager : GraphEdit
 
         ApplySearchHighlighting();
 
-        if (_searchMatchIds.Count > 0)
-        {
-            _currentSearchMatchIndex = 0;
-            FocusEntryById(_searchMatchIds[_currentSearchMatchIndex]);
-        }
-
         return _searchMatchIds.Count;
     }
 
     public void ResetTitleSearch()
     {
         _searchMatchIds.Clear();
-        _currentSearchMatchIndex = -1;
         ClearSearchHighlighting();
     }
 
@@ -154,12 +144,16 @@ public partial class MindMapManager : GraphEdit
             foreach (var line in lines)
             {
                 var trimmed = line.Trim();
-                if (!trimmed.StartsWith("Todo:", StringComparison.OrdinalIgnoreCase))
+                var markerIndex = trimmed.IndexOf("???", StringComparison.Ordinal);
+                if (markerIndex < 0)
                 {
                     continue;
                 }
 
-                var text = trimmed.Length > 5 ? trimmed.Substring(5).Trim() : string.Empty;
+                var textStartIndex = markerIndex + 3;
+                var text = textStartIndex < trimmed.Length
+                    ? trimmed.Substring(textStartIndex).Trim()
+                    : string.Empty;
                 var label = new Label
                 {
                     Text = $"{entry.Title}: {text}"
@@ -500,20 +494,6 @@ public partial class MindMapManager : GraphEdit
 
             node.Modulate = DefaultEntryModulate;
         }
-    }
-
-    private void FocusEntryById(int entryId)
-    {
-        var node = GetNodeOrNull<GraphNode>(GetEntryNodeName(entryId));
-        if (node is null)
-        {
-            return;
-        }
-
-        var zoom = Mathf.Max(Zoom, MinGraphZoom);
-        var viewportCenterInGraph = ScrollOffset + Size * 0.5f / zoom;
-        var nodeCenter = node.PositionOffset + node.Size * 0.5f;
-        ScrollOffset += nodeCenter - viewportCenterInGraph;
     }
 
     private void ClearAllEntryNodes()

@@ -10,11 +10,12 @@ config_version=5
 
 [application]
 
-config/name="NT_Mindmap"
+config/name="NT Mindmap"
 run/main_scene="uid://cag78asatelab"
 config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 run/low_processor_mode=true
-config/icon="res://assets/icons/icon.svg"
+boot_splash/show_image=false
+config/icon="uid://bth8aiic5g4w3"
 
 [dotnet]
 
