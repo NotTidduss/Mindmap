@@ -4,19 +4,14 @@ using System.Text.Json.Serialization;
 using Godot;
 
 [Serializable]
-public partial class ProjectEntry
+public partial class Entry
 {
     public int Id { get; set; }
-
     public string Title { get; set; } = "New Entry";
-
     public string Note { get; set; } = string.Empty;
-
     public float PositionX { get; set; }
-
     public float PositionY { get; set; }
-
-    public List<int> ConnectionIds { get; set; } = new();
+    public List<int> ConnectionIds { get; set; } = [];
 
     [JsonIgnore]
     public Vector2 Position

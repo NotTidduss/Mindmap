@@ -5,13 +5,13 @@ using System.Linq;
 [Serializable]
 public partial class MindMapData
 {
-    public List<ProjectEntry> Entries { get; set; } = new();
-
+    public List<Entry> Entries { get; set; } = [];
     public int NextId { get; set; } = 1;
 
-    public ProjectEntry CreateEntry(string title, string note, Godot.Vector2 position)
+    public Entry GetEntry(int id) => Entries.FirstOrDefault(entry => entry.Id == id);
+    public Entry CreateEntry(string title, string note, Godot.Vector2 position)
     {
-        var entry = new ProjectEntry
+        Entry entry = new()
         {
             Id = NextId++,
             Title = title,
@@ -22,26 +22,15 @@ public partial class MindMapData
         Entries.Add(entry);
         return entry;
     }
-
-    public ProjectEntry GetEntry(int id)
-    {
-        return Entries.FirstOrDefault(entry => entry.Id == id);
-    }
-
     public bool RemoveEntry(int id)
     {
-        var entry = GetEntry(id);
-        if (entry is null)
-        {
-            return false;
-        }
+        Entry entry = GetEntry(id);
+        if (entry is null) return false;
 
         Entries.Remove(entry);
 
-        foreach (var item in Entries)
-        {
+        foreach (Entry item in Entries)
             item.ConnectionIds.RemoveAll(connectionId => connectionId == id);
-        }
 
         return true;
     }
@@ -51,10 +40,9 @@ public partial class MindMapData
         Entries.Clear();
         NextId = 1;
     }
-
     public void EnsureNextId()
     {
-        var maxId = Entries.Count == 0 ? 0 : Entries.Max(entry => entry.Id);
+        int maxId = Entries.Count == 0 ? 0 : Entries.Max(entry => entry.Id);
         NextId = Math.Max(NextId, maxId + 1);
     }
 }

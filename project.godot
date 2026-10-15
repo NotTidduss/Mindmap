@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="NT Mindmap"
 run/main_scene="uid://cag78asatelab"
-config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
+config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 run/low_processor_mode=true
 boot_splash/show_image=false
 config/icon="uid://bth8aiic5g4w3"

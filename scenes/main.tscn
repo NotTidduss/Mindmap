@@ -1,18 +1,41 @@
-[gd_scene load_steps=3 format=3 uid="uid://cag78asatelab"]
+[gd_scene format=3 uid="uid://cag78asatelab"]
 
-[ext_resource type="Script" uid="uid://dctrdyk53uix5" path="res://scripts/ui/Main.cs" id="1_main"]
-[ext_resource type="Script" uid="uid://i8xui43is116" path="res://scripts/core/MindMapManager.cs" id="2_manager"]
+[ext_resource type="Script" uid="uid://i8xui43is116" path="res://scripts/ui/MindMap.cs" id="2_manager"]
+[ext_resource type="Script" uid="uid://ck8o37c6ae2yq" path="res://scripts/core/Tree.cs" id="2_o6xl0"]
+[ext_resource type="Script" uid="uid://b2i8apyw0hbdu" path="res://scripts/core/Inputs.cs" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://b021ngjpdwqsb" path="res://scripts/ui/AddButton.cs" id="4_jyhfs"]
+[ext_resource type="Script" uid="uid://c5sy3lbbsqsfo" path="res://scripts/ui/SaveButton.cs" id="5_85g3d"]
+[ext_resource type="Script" uid="uid://mspvyl2x52nl" path="res://scripts/ui/LoadButton.cs" id="6_choun"]
+[ext_resource type="Script" uid="uid://v8kaote1nrm5" path="res://scripts/ui/SearchInput.cs" id="7_ya4ey"]
+[ext_resource type="Script" uid="uid://bvk23ctxutf6r" path="res://scripts/ui/SearchCount.cs" id="8_eb6dy"]
+[ext_resource type="Script" uid="uid://dxufdvqqaefxv" path="res://scripts/ui/TodoList.cs" id="9_trceg"]
+[ext_resource type="Script" uid="uid://8cmp7r5iahfy" path="res://scripts/ui/MindMapFileDialog.cs" id="10_choun"]
 
-[node name="Main" type="Control"]
+[node name="Main" type="Node" unique_id=251853370]
+
+[node name="Tree" type="Node" parent="." unique_id=1061152444 node_paths=PackedStringArray("mindMap", "addButton", "saveButton", "loadButton", "searchInput", "searchCount", "todoList", "fileDialog")]
+script = ExtResource("2_o6xl0")
+mindMap = NodePath("../UI/HSplitContainer/MindMap")
+addButton = NodePath("../UI/HSplitContainer/Margin/Sidebar/AddButton")
+saveButton = NodePath("../UI/HSplitContainer/Margin/Sidebar/SaveButton")
+loadButton = NodePath("../UI/HSplitContainer/Margin/Sidebar/LoadButton")
+searchInput = NodePath("../UI/HSplitContainer/Margin/Sidebar/SearchRow/SearchInput")
+searchCount = NodePath("../UI/HSplitContainer/Margin/Sidebar/SearchRow/SearchCount")
+todoList = NodePath("../UI/HSplitContainer/Margin/Sidebar/TodoList")
+fileDialog = NodePath("../FileDialog")
+
+[node name="Inputs" type="Node" parent="." unique_id=1540903378]
+script = ExtResource("2_sugp2")
+
+[node name="UI" type="Control" parent="." unique_id=836467333]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_main")
 
-[node name="HSplitContainer" type="HSplitContainer" parent="."]
+[node name="HSplitContainer" type="HSplitContainer" parent="UI" unique_id=2026569661]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,65 +43,70 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MindMapGraph" type="GraphEdit" parent="HSplitContainer"]
+[node name="MindMap" type="GraphEdit" parent="UI/HSplitContainer" unique_id=788606988]
 custom_minimum_size = Vector2(700, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_offset = Vector2(-280, 0)
 right_disconnects = true
 script = ExtResource("2_manager")
-TodoListContainerPath = NodePath("../Margin/Sidebar/TodoList")
 
-[node name="Margin" type="MarginContainer" parent="HSplitContainer"]
+[node name="Margin" type="MarginContainer" parent="UI/HSplitContainer" unique_id=33445021]
 layout_mode = 2
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="Sidebar" type="VBoxContainer" parent="HSplitContainer/Margin"]
+[node name="Sidebar" type="VBoxContainer" parent="UI/HSplitContainer/Margin" unique_id=442422099]
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="AddEntryButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
+[node name="AddButton" type="Button" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=1460678644]
 layout_mode = 2
 text = "Add Entry (Ctrl+N)"
+script = ExtResource("4_jyhfs")
 
-[node name="SaveButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
+[node name="SaveButton" type="Button" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=766385787]
 layout_mode = 2
 text = "Save Project (Ctrl+S)"
+script = ExtResource("5_85g3d")
 
-[node name="LoadButton" type="Button" parent="HSplitContainer/Margin/Sidebar"]
+[node name="LoadButton" type="Button" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=646346571]
 layout_mode = 2
 text = "Load Project (Ctrl+O)"
+script = ExtResource("6_choun")
 
-[node name="SearchSeparatorTop" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
+[node name="SearchSeparatorTop" type="HSeparator" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=2083287075]
 layout_mode = 2
 
-[node name="SearchRow" type="HBoxContainer" parent="HSplitContainer/Margin/Sidebar"]
+[node name="SearchRow" type="HBoxContainer" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=1488124955]
 layout_mode = 2
 
-[node name="SearchInput" type="LineEdit" parent="HSplitContainer/Margin/Sidebar/SearchRow"]
+[node name="SearchInput" type="LineEdit" parent="UI/HSplitContainer/Margin/Sidebar/SearchRow" unique_id=2122566681]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search title..."
+script = ExtResource("7_ya4ey")
 
-[node name="SearchCount" type="Label" parent="HSplitContainer/Margin/Sidebar/SearchRow"]
+[node name="SearchCount" type="Label" parent="UI/HSplitContainer/Margin/Sidebar/SearchRow" unique_id=1520440901]
 layout_mode = 2
 text = "0 matches"
+script = ExtResource("8_eb6dy")
 
-[node name="SearchSeparatorBottom" type="HSeparator" parent="HSplitContainer/Margin/Sidebar"]
+[node name="SearchSeparatorBottom" type="HSeparator" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=1733780019]
 layout_mode = 2
 
-[node name="TodoHeader" type="Label" parent="HSplitContainer/Margin/Sidebar"]
+[node name="TodoHeader" type="Label" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=835146014]
 layout_mode = 2
 text = "ToDo:"
 
-[node name="TodoList" type="VBoxContainer" parent="HSplitContainer/Margin/Sidebar"]
+[node name="TodoList" type="VBoxContainer" parent="UI/HSplitContainer/Margin/Sidebar" unique_id=1017221762]
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("9_trceg")
 
-[node name="ProjectFileDialog" type="FileDialog" parent="."]
+[node name="FileDialog" type="FileDialog" parent="." unique_id=377650544]
 title = "Select Mind Map Project File"
 size = Vector2i(900, 620)
+script = ExtResource("10_choun")
